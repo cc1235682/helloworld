@@ -1,25 +1,29 @@
 import streamlit as st
-import pandas as pd
-import time
 
-def expensive_process(option, add):
-    with st.spinner('Processing...'):
-        time.sleep(5)
-    df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6], 'C':[7, 8, 9]}) + add
-    return (df, add)
+if 'stage' not in st.session_state:
+    st.session_state.stage = 0
 
-cols = st.columns(2)
-option = cols[0].selectbox('Select a number', options=['1', '2', '3'])
-add = cols[1].number_input('Add a number', min_value=0, max_value=10)
+def set_state(i):
+    st.session_state.stage = i
 
-if 'processed' not in st.session_state:
-    st.session_state.processed = {}
+st.title('你好呀，这里是小罗 :sunglasses: ')
+st.write('点一点，有惊喜↓')
 
-# Process and save results
-if st.button('Process'):
-    result = expensive_process(option, add)
-    st.session_state.processed[option] = result
+if st.session_state.stage == 0:
+    st.button('Begin', on_click=set_state, args=[1])
 
-if option in st.session_state.processed:
-    st.write(f'Option {option} processed with add {add}')
-    st.write(st.session_state.processed[option][0])
+if st.session_state.stage >= 1:
+    name = st.text_input('Name', on_change=set_state, args=[2])
+
+if st.session_state.stage >= 2:
+    color = st.selectbox(
+        'Pick a Color',
+        [None, 'red', 'orange', 'green', 'blue', 'violet'],
+        on_change=set_state, args=[3]
+    )
+    if color is None:
+        set_state(2)
+
+if st.session_state.stage >= 3:
+    st.write(f':{color}[祝{name}天天开心:balloon:]')
+    st.button('Start Over', on_click=set_state, args=[0])
